@@ -77,4 +77,18 @@ public class Transaction {
     public void setIssueMessage(String issueMessage) {
         this.issueMessage = issueMessage;
     }
+
+    @Override
+    public String toString() {
+        return "Transaction{" +
+                "amount=" + amount +
+                ", senderFullName='" + senderFullName + '\'' +
+                ", senderAge=" + senderAge +
+                ", beneficiaryFullName='" + beneficiaryFullName + '\'' +
+                ", beneficiaryAge=" + beneficiaryAge +
+                ", issueId=" + issueId +
+                ", issueSolved=" + issueSolved +
+                ", issueMessage='" + issueMessage + '\'' +
+                '}';
+    }
 }
