@@ -16,7 +16,8 @@ import java.util.stream.Stream;
 
 public class TransactionDataFetcher {
     private static List<Transaction> transactions=null;
-    static {
+
+    public TransactionDataFetcher() {
         try (FileReader fileReader = new FileReader("transactions.json")) {
             Gson gson = new Gson();
             Type transactionListType = new TypeToken<List<Transaction>>() {}.getType();
@@ -27,11 +28,10 @@ public class TransactionDataFetcher {
     }
 
 
-
     /**
      * Returns the sum of the amounts of all transactions
      */
-    public static double getTotalTransactionAmount() {
+    public  double getTotalTransactionAmount() {
 
         try {
             double totalAmount = transactions.stream()
@@ -49,7 +49,7 @@ public class TransactionDataFetcher {
     /**
      * Returns the sum of the amounts of all transactions sent by the specified client
      */
-    public static double getTotalTransactionAmountSentBy(String senderFullName) {
+    public  double getTotalTransactionAmountSentBy(String senderFullName) {
 
         try{
             double totalAmount  = transactions.stream()
@@ -68,7 +68,7 @@ public class TransactionDataFetcher {
     /**
      * Returns the highest transaction amount
      */
-    public static  double getMaxTransactionAmount() {
+    public   double getMaxTransactionAmount() {
 
         double highestAmount=0;
         try {
@@ -89,7 +89,7 @@ public class TransactionDataFetcher {
     /**
      * Counts the number of unique clients that sent or received a transaction
      */
-    public static long countUniqueClients() {
+    public  long countUniqueClients() {
 
         try {
 
@@ -111,7 +111,7 @@ public class TransactionDataFetcher {
      * Returns whether a client (sender or beneficiary) has at least one transaction with a compliance
      * issue that has not been solved
      */
-    public static boolean hasOpenComplianceIssues(String clientFullName) {
+    public  boolean hasOpenComplianceIssues(String clientFullName) {
         try {
 
             boolean hasCompliance  = transactions.stream()
@@ -127,7 +127,7 @@ public class TransactionDataFetcher {
     /**
      * Returns all transactions indexed by beneficiary name
      */
-    public static Map<String, List<Transaction>> getTransactionsByBeneficiaryName() {
+    public  Map<String, List<Transaction>> getTransactionsByBeneficiaryName() {
         try {
 
             Map<String, List<Transaction>> transactionsByBeneficiary = transactions.stream()
@@ -143,7 +143,7 @@ public class TransactionDataFetcher {
     /**
      * Returns the identifiers of all open compliance issues
      */
-    public static Set<Integer> getUnsolvedIssueIds() {
+    public  Set<Integer> getUnsolvedIssueIds() {
         try {
             Set<Integer> sortedTransactions = transactions.stream().filter(transaction ->transaction.isIssueSolved()==false ).map(Transaction::getIssueId).collect(Collectors.toSet());
 
@@ -158,9 +158,9 @@ public class TransactionDataFetcher {
     /**
      * Returns a list of all solved issue messages
      */
-    public static List<String> getAllSolvedIssueMessages() {
+    public  List<String> getAllSolvedIssueMessages() {
         try {
-            List<String> sortedTransactions = transactions.stream().map(Transaction::getIssueMessage).collect(Collectors.toList());
+            List<String> sortedTransactions = transactions.stream().filter(transaction -> transaction.isIssueSolved()==true).map(Transaction::getIssueMessage).collect(Collectors.toList());
 
             return sortedTransactions;
         } catch (Exception e) {
@@ -193,44 +193,21 @@ public class TransactionDataFetcher {
             Type transactionListType = new TypeToken<List<Transaction>>() {}.getType();
             List<Transaction> transactions = gson.fromJson(fileReader, transactionListType);
 
-           // Optional<String> totalAmountBySender = transactions.stream().collect(transactions.)
 
-
-         //   return totalAmountBySender;
+         Optional<String> topSender=  Optional.of(transactions.stream()
+                    .collect(Collectors.groupingBy(Transaction::getSenderFullName,
+                            Collectors.summingDouble(Transaction::getAmount)))
+                    .entrySet()
+                    .stream()
+                    .max(Comparator.comparingDouble(Map.Entry::getValue))
+                    .map(Map.Entry::getKey)
+                    .orElse(null));
+          return topSender;
         } catch (IOException e) {
             e.printStackTrace();
         }
         throw new UnsupportedOperationException();
     }
 
-     public static void main(String[] args) {
 
-        System.out.println("Max.. "+getMaxTransactionAmount());
-
-        System.out.println("Total:  "+countUniqueClients());
-
-        System.out.println(hasOpenComplianceIssues("Tom Shelby"));
-
-        Map<String,List<Transaction>> map=getTransactionsByBeneficiaryName();
-         for (Map.Entry<String, List<Transaction>> entry : map.entrySet()) {
-             String key = entry.getKey();
-             List<Transaction> value = entry.getValue();
-             System.out.println("Key: " + key );
-            for(Transaction transaction:value){
-                System.out.println(transaction);
-            }
-
-         }
-        Set<Integer> list1=getUnsolvedIssueIds();
-        System.out.println(list1.toString());
-        List<String> list=getAllSolvedIssueMessages();
-
-        System.out.println(list.toString());
-         List<Transaction> tr=  getTop3TransactionsByAmount();
-         for (Transaction transaction : tr) {
-             System.out.println(transaction.getAmount());
-         }
-        System.out.println(getTotalTransactionAmount());
-         System.out.println(getTotalTransactionAmountSentBy("Tom Shelby"));
-    }
 }
