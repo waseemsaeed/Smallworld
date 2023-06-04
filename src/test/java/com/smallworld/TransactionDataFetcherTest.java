@@ -38,6 +38,7 @@ TransactionDataFetcher transactionDataFetcher=new TransactionDataFetcher();
         expected.add(99);
         expected.add(54);
         expected.add(15);
+        assertNotNull(transactionDataFetcher.getUnsolvedIssueIds());
         assertEquals(expected,transactionDataFetcher.getUnsolvedIssueIds());
     }
     @Test
@@ -46,6 +47,7 @@ TransactionDataFetcher transactionDataFetcher=new TransactionDataFetcher();
         String messageTwo="Never gonna give you up";
         String messageThree="Something's fishy";
         String messageFour="Never gonna run around and desert you";
+        assertNotNull(transactionDataFetcher.getAllSolvedIssueMessages());
         boolean messageOneCheck=transactionDataFetcher.getAllSolvedIssueMessages().contains(messageOne);
         assertFalse(messageOneCheck);
         boolean messageTwoCheck=transactionDataFetcher.getAllSolvedIssueMessages().contains(messageTwo);
